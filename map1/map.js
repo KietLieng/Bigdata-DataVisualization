@@ -27,6 +27,8 @@ var world_map;
 var open_con = []
 var set
 var fill_key = 'add';
+var dataPoints = [];
+var dataIndex =0;
 
 var highlight_country = function(country_name) {
   return d3.select('path[data-country-name="' + country_name + '"]')
@@ -154,11 +156,15 @@ var addBubbles = function(bubbles) {
 
 function fillMap () {
   req_url = 'generateIP.php';
-  var data;
   locName = "";
-  $.getJSON( req_url, function(data) {
+  var data;
+  if (dataIndex >= dataPoints.length) {
+    loadDataPoints();
+  }
+  else {
+    data = dataPoints[dataIndex];
+    dataIndex++;
     $('#loading').remove();
-//    alert(data.ip);
     if (data.region_name) {
       locName = data.region_name + ", ";
     }
@@ -179,7 +185,7 @@ function fillMap () {
      .addBubbles([{radius: 4,
        latitude: data.latitude,
        longitude: data.longitude,
-       page_title: "Some Topic",
+       page_title: "Wiki edits",
        fillKey: fill_key,
        lid: locName + data.country_name
      }]);
@@ -189,9 +195,15 @@ function fillMap () {
         if (!country_hl[0][0] && window.console) {
           console.log('Could not highlight country: ' + data.country_name);
         }
-      }    
+      }
     }
-
-  });
+  }
 };
 
+function loadDataPoints() {
+  dataIndex = 0;
+  $.getJSON( "findLocation.php", function(data) {
+    dataPoints = JSON.parse(data);
+//    console.log(dataPoints);
+  });
+}

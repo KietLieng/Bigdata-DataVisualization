@@ -35,6 +35,7 @@
         var RC_LOG_SIZE = 20;
         var DEFAULT_LANG = 'en'
           $(document).ready(function() {
+            loadDataPoints();
             world_map = $("#map").datamap({
               element: document.getElementById("bubbles"),
               bubbles:[],
