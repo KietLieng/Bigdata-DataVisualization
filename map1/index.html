@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+  <title>JFA - Anon and Wiki</title>
   <link href='bootstrap.min.css' rel='stylesheet' type='text/css'>
   <style type="text/css">
     .locationTag {
@@ -29,33 +30,46 @@
     }
   </style>
   <script src='jquery-1.9.1.min.js' type="text/javascript"></script>
+  <script src='topojson.1.6.18.min.js' type="text/javascript"></script>
+  <script src='d3.js' type="text/javascript"></script>
   <script src='datamaps-world.js' type="text/javascript"></script>
   <script src="map.js" type="text/javascript" type="text/javascript"></script>
   <script>
         var RC_LOG_SIZE = 20;
-        var DEFAULT_LANG = 'en'
+        var DEFAULT_LANG = 'en';
+        var bubblesArray = [];
           $(document).ready(function() {
             loadDataPoints();
-            world_map = $("#map").datamap({
-              element: document.getElementById("bubbles"),
-              bubbles:[],
-              bubble_config: {
+            wiki_map = new Datamap({
+              element: document.getElementById("map"),
+              bubbles: bubblesArray,
+              geographyConfig: {
+                highlightFillColor: '#eddc4e',
+                highlightBorderColor: 'white'
+              },
+              bubblesConfig: {
                 popupOnHover: false,
                 highlightOnHover: true,
+                defaultFill: "cyan",
                 borderWidth: 1,
-                borderColor: '#555555',
-                popupTemplate: _.template('<div class="hoverinfo"><%= data.page_title %> <span class="lang">(<%= data.lid %>)</span></div>'),
-                highlightBorderColor: '#555555',
-                highlightFillColor: '#555555',
+                borderColor: 'green',
+                highlightBorderColor: 'red',
+                highlightFillColor: 'cyan',
                 highlightBorderWidth: 1,
-                highlightFillOpacity: 0.85
+                highlightFillOpacity: 0.85,
+                animationSpeed: 600
+              },
+              popupTemplate: function(geo, data) {              
+                return '<div class="hoverinfo">' + geo + '<span class="lang">' + data + '</span></div>';
               },
               fills: {
-                defaultFill: '#fff',
-                'add': '#555555'
+                defaultFill: '#CCC',
+                'add': '#555555',
+                'bubbleFill': 'red'
               }
             });
-            world_map.addBubbles = addBubbles;
+            wiki_map.bubbles(bubblesArray);
+//            wiki_map.addBubbles = addBubbles;
             return;
         });
         setInterval(fillMap, 3000);
@@ -71,7 +85,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="http://jetfighterawesome.com/">Anon and Wiki</a>
+          <a class="navbar-brand" href="http://jetfighterawesome.com/">Jet Fighter Awesome - Anon and Wiki</a>
         </div>
       </div>
     </nav>
@@ -89,7 +103,9 @@
       <!-- Example row of columns -->
       <hr>
       <footer>
-      <p>&copy; Company 2015</p>
+        <p>&copy; Company <script type="text/javascript">
+            var d = new Date();
+            document.write(d.getFullYear()); </script></p>
       </footer>
     </div> <!-- /container -->
   </body>

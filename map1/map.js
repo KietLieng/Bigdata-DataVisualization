@@ -23,7 +23,7 @@ var country_name_map = {
 var total_edits = 0;
 var edit_times = [];
 var edit_intervals = [];
-var world_map;
+var wiki_map;
 var open_con = []
 var set
 var fill_key = 'add';
@@ -38,14 +38,12 @@ var highlight_country = function(country_name) {
     .style('fill', '#ccc');
 };
 
-
+/*
 var addBubbles = function(bubbles) {
     var self = this;
-    if (_.isUndefined(bubbles.length)) {
         bubbles = [];
-    }
 
-    var projection = this._map.get('projection');
+    var projection = this.map.get('projection');
     var options = this.options.bubble_config;
 
     var bubbleContainer = this.svg.append('g').attr('class', 'bubbles');
@@ -153,25 +151,48 @@ var addBubbles = function(bubbles) {
             $('#map').append(div);
         });
 };
+*/
+
+
 
 function fillMap () {
   req_url = 'generateIP.php';
   locName = "";
   var data;
   if (dataIndex >= dataPoints.length) {
+//    alert("loading data");
     loadDataPoints();
   }
   else {
+//    alert("getting data");
     data = dataPoints[dataIndex];
     dataIndex++;
     $('#loading').remove();
     if (data.region_name) {
       locName = data.region_name + ", ";
     }
-    if (data .city) {
+    if (data.city) {
        locName = data.city + ", ";
     }
-    world_map.options.bubbles = world_map.options.bubbles.slice(-20);
+    bubblesArray.push({
+    name: locName + data.country_name,
+    radius: 7,
+    fillKey: "bubbleFill",
+    latitude: data.latitude,
+    longitude: data.longitude});
+    if (bubblesArray.length > 5) {
+      bubblesArray.shift();
+    }
+    wiki_map.bubbles(bubblesArray);
+    
+   country_hl = highlight_country(data.country_name);
+   if (!country_hl[0][0]) {
+    country_hl = highlight_country(country_name_map[data.country_name]);
+    if (!country_hl[0][0] && window.console) {
+       console.log('Could not highlight country: ' + data.country_name);
+    }
+  }
+/*
     if (locName) {
     $('.bubbles')
       .animate({opacity: 0,
@@ -181,7 +202,7 @@ function fillMap () {
        function(){
          this.remove();
        });
-      world_map
+      wiki_map
      .addBubbles([{radius: 4,
        latitude: data.latitude,
        longitude: data.longitude,
@@ -189,14 +210,8 @@ function fillMap () {
        fillKey: fill_key,
        lid: locName + data.country_name
      }]);
-     country_hl = highlight_country(data.country_name);
-      if (!country_hl[0][0]) {
-        country_hl = highlight_country(country_name_map[data.country_name]);
-        if (!country_hl[0][0] && window.console) {
-          console.log('Could not highlight country: ' + data.country_name);
-        }
-      }
     }
+    */
   }
 };
 
