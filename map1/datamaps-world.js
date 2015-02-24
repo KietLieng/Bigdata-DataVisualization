@@ -377,6 +377,7 @@
     }
 
     var bubbles = layer.selectAll('circle.datamaps-bubble').data( data, JSON.stringify );
+    var projection = this.projection;
 
     bubbles
       .enter()
@@ -392,15 +393,15 @@
           }
           if ( latLng ) return latLng[0];
         })
-        .attr('cy', function ( datum ) {
+        .attr('cy', function (datum) {
           var latLng;
-          if ( datumHasCoords(datum) ) {
+          if (datumHasCoords(datum)) {
             latLng = self.latLngToXY(datum.latitude, datum.longitude);
           }
-          else if ( datum.centered ) {
+          else if (datum.centered) {
             latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
           }
-          if ( latLng ) return latLng[1];;
+          if (latLng) return latLng[1];
         })
         .attr('r', 100) //for animation purposes
         .attr('fill-opacity', .2)
@@ -445,26 +446,56 @@
             self.updatePopup($this, datum, options, svg);
           }
         })
-        .on('mouseout', function ( datum ) {
+        .on('mouseout', function (datum) {
           var $this = d3.select(this);
 
           if (options.highlightOnHover) {
             //reapply previous attributes
-            var previousAttributes = JSON.parse( $this.attr('data-previousAttributes') );
-            for ( var attr in previousAttributes ) {
+            var previousAttributes = JSON.parse($this.attr('data-previousAttributes'));
+            for (var attr in previousAttributes) {
               $this.style(attr, previousAttributes[attr]);
             }
           }
           d3.selectAll('.datamaps-hoverover').style('display', 'none');
         })
         .transition().duration(900)
-          .attr('r', function ( datum ) {
+          .attr('r', function (datum) {
             return datum.radius;
           })
         .transition().duration(options.fillOpacitySpeed) // fill opacity speed
           .attr('fill-opacity', function( datum ) {
             return options.fillOpacity;
-          });
+          })
+          .each(function(d){
+            total_edits += 1;
+            edit_times.push(new Date().getTime());
+            if (total_edits > 2) {
+                var cur = edit_times[edit_times.length - 1];
+                var prev = edit_times[edit_times.length - 2];
+                edit_intervals.push(cur - prev);
+            }
+            var s = 0;
+            for (var i = 0; i < edit_intervals.length; i ++) {
+                s += edit_intervals[i];
+            }
+            var rate_avg = Math.ceil(((s / edit_intervals.length) / 1000) * 10);
+            edit_times = edit_times.slice(0, 500);
+            edit_intervals = edit_intervals.slice(0, 500);
+            var x = projection([d.longitude, d.latitude])[0];
+            var y = projection([d.longitude, d.latitude])[1];
+            var div = $('<div />').css({
+                                        position:'absolute',
+                                        'top': y + 5,
+                                        'left': x + 5
+                                        })
+                                .addClass('locationTag')
+                                .animate({opacity: 0}, 4000, null, function() {
+                                    this.remove();
+                                });
+
+            div.html(' <span class="lang">' + d.name + '</span>');
+            $('#map').append(div);
+        });
 //        .transition().duration(options.fadeOpacitySpeed) // fade opacity speed
 //          .attr('fill-opacity', function( datum ) {
 //            return 0;
